@@ -1,0 +1,140 @@
+# VLA Pipeline API Contract
+
+## Voice Processing Service
+
+### POST /process-voice-command
+Process a voice command and return structured robot tasks
+
+**Request**:
+```json
+{
+  "audio_data": "base64_encoded_audio",
+  "student_id": "string",
+  "language": "en-US"
+}
+```
+
+**Response**:
+```json
+{
+  "request_id": "string",
+  "status": "processing|completed|failed",
+  "transcript": "string",
+  "intent": "string",
+  "task_graph": {
+    "nodes": [
+      {
+        "id": "string",
+        "type": "navigation|manipulation|perception|wait",
+        "parameters": {},
+        "dependencies": ["string"]
+      }
+    ]
+  },
+  "confidence": 0.0-1.0,
+  "timestamp": "ISO8601"
+}
+```
+
+**Error Responses**:
+- 400: Invalid audio format or missing required fields
+- 422: Unable to understand command or unsafe action detected
+- 500: Processing error
+
+## Vision Service
+
+### POST /detect-objects
+Analyze camera feed and detect objects
+
+**Request**:
+```json
+{
+  "image_data": "base64_encoded_image",
+  "detection_threshold": 0.5,
+  "classes_of_interest": ["string"]
+}
+```
+
+**Response**:
+```json
+{
+  "request_id": "string",
+  "objects": [
+    {
+      "id": "string",
+      "class_name": "string",
+      "confidence": 0.0-1.0,
+      "position_3d": {"x": float, "y": float, "z": float},
+      "bounding_box": {"x": int, "y": int, "width": int, "height": int}
+    }
+  ],
+  "timestamp": "ISO8601"
+}
+```
+
+## Task Execution Service
+
+### POST /execute-task-graph
+Execute a generated task graph on the robot
+
+**Request**:
+```json
+{
+  "task_graph": {...}, // Same format as returned by voice processing
+  "student_id": "string",
+  "simulation_mode": true|false
+}
+```
+
+**Response**:
+```json
+{
+  "execution_id": "string",
+  "status": "queued|running|completed|failed|cancelled",
+  "current_task": "string",
+  "progress": 0.0-1.0,
+  "estimated_completion": "ISO8601",
+  "robot_state": {...} // Current state of robot
+}
+```
+
+## Student Progress Service
+
+### GET /student-progress/{student_id}
+Get progress for a specific student
+
+**Response**:
+```json
+{
+  "student_id": "string",
+  "chapters_completed": [1, 2],
+  "tasks_completed": ["task_id1", "task_id2"],
+  "assessment_scores": [
+    {"chapter": 1, "score": 85.0, "timestamp": "ISO8601"},
+    {"chapter": 2, "score": 92.0, "timestamp": "ISO8601"}
+  ],
+  "last_activity": "ISO8601",
+  "completion_percentage": 0.0-1.0
+}
+```
+
+### PUT /student-progress/{student_id}
+Update student progress
+
+**Request**:
+```json
+{
+  "chapter_completed": 3,
+  "task_completed": "task_id3",
+  "assessment_score": 88.0
+}
+```
+
+**Response**:
+```json
+{
+  "status": "updated",
+  "new_completion_percentage": 0.0-1.0,
+  "badges_earned": ["string"]
+}
+```

@@ -1,0 +1,57 @@
+# ROS 2 API Contracts: The Robotic Nervous System (ROS 2)
+
+## Publisher/Subscriber Interface
+
+### Publisher Node Contract
+- **Node Name**: `talker`
+- **Published Topic**: `/chatter`
+- **Message Type**: `std_msgs/String`
+- **Publish Rate**: 2 Hz
+- **Message Format**: String message with timestamp
+- **Expected Behavior**: Publishes a new message every 0.5 seconds
+
+### Subscriber Node Contract
+- **Node Name**: `listener`
+- **Subscribed Topic**: `/chatter`
+- **Message Type**: `std_msgs/String`
+- **Callback Rate**: As messages arrive
+- **Expected Behavior**: Logs received messages to console with timestamp
+
+## Service Interface
+
+### Add Two Ints Service Contract
+- **Service Name**: `/add_two_ints`
+- **Service Type**: `example_interfaces/srv/AddTwoInts`
+- **Request Fields**: `a` (int64), `b` (int64)
+- **Response Field**: `sum` (int64)
+- **Expected Behavior**: Returns the sum of the two input integers
+
+## Action Interface
+
+### Robot Command Action Contract
+- **Action Name**: `/robot_command`
+- **Action Type**: Custom action definition
+- **Goal Fields**: `command` (string), `parameters` (dictionary)
+- **Feedback Type**: Command execution status
+- **Result Type**: Execution result with success/failure status
+
+## AI Agent Interface
+
+### AI Agent to ROS Bridge Contract
+- **Published Topics**:
+  - `/ai_commands` (RobotCommand message type)
+  - `/task_status` (TaskStatus message type)
+- **Subscribed Topics**:
+  - `/sensor_data` (SensorData message type)
+  - `/robot_state` (RobotState message type)
+- **Services Used**: Any defined robot services
+- **Expected Behavior**: Translates AI decisions to ROS commands and processes sensor data
+
+## URDF Model Interface
+
+### Humanoid Robot Model Contract
+- **Model Name**: `humanoid_robot`
+- **Links**: Base link, torso, head, arms, legs with appropriate joint connections
+- **Joint Types**: Revolute, continuous, and fixed joints as appropriate
+- **Materials**: Defined colors and visual properties
+- **Validation**: Must load without errors in RViz and Gazebo
